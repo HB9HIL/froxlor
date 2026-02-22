@@ -1599,7 +1599,7 @@ Atentamente, su administrador'
 			],
 			'ssl_cipher_list' => [
 				'title' => 'Configure los cifrados SSL permitidos',
-				'description' => 'Esta es una lista de cifradores que quiere (o no quiere) usar cuando hable SSL. Para una lista de cifradores y cómo incluirlos/excluirlos, vea las secciones "CIPHER LIST FORMAT" y "CIPHER STRINGS" en <a href="https://www.openssl.org/docs/manmaster/man1/openssl-ciphers.html">la página man de cifradores</a>.<br/><br/><b>El valor por defecto es:</b><pre>ECDH+AESGCM:ECDH+AES256:!aNULL:!MD5:!DSS:!DH:!AES128</pre>'
+				'description' => 'Esta es una lista de cifradores que quiere (o no quiere) usar cuando hable SSL. Para una lista de cifradores y cómo incluirlos/excluirlos, vea las secciones "CIPHER LIST FORMAT" y "CIPHER STRINGS" en <a href="https://www.openssl.org/docs/manmaster/man1/openssl-ciphers.html">la página man de cifradores</a>.<br/><br/><b>El valor por defecto es:</b><pre>ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305</pre>'
 			],
 			'apache24_ocsp_cache_path' => [
 				'title' => 'Apache 2.4: ruta a la caché de grapado OCSP',

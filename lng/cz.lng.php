@@ -1752,7 +1752,7 @@ Ach upřímně, váš správce',
 			],
 			'ssl_cipher_list' => [
 				'title' => 'Konfigurovat povolené SSL šifry',
-				'description' => 'Toto je seznam šifer, které chcete (nebo nechcete) použít při komunikaci SSL. Pro seznam šifer a způsob, jak je zahrnout/vyloučit viz oddíly "CIPHER LIST FORMAT" a "CIPHER STRINGS" na <a href="https://www.openssl.org/docs/manmaster/man1/openssl-ciphers.html">man-stránce pro šifry</a>.<br /><br /><b>Výchozí hodnota je:</b><pre>ECDH+AESGCM:ECDH+AES256:!aNULL:!MD5:!DSS:!DH:!AES128</pre>',
+				'description' => 'Toto je seznam šifer, které chcete (nebo nechcete) použít při komunikaci SSL. Pro seznam šifer a způsob, jak je zahrnout/vyloučit viz oddíly "CIPHER LIST FORMAT" a "CIPHER STRINGS" na <a href="https://www.openssl.org/docs/manmaster/man1/openssl-ciphers.html">man-stránce pro šifry</a>.<br /><br /><b>Výchozí hodnota je:</b><pre>ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305</pre>',
 			],
 			'apache24_ocsp_cache_path' => [
 				'title' => 'Apache 2.4: cesta k OCSP stapling cache',

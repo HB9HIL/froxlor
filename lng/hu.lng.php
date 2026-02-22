@@ -1752,7 +1752,7 @@ Jelszó: {USR_PASS}
 			],
 			'ssl_cipher_list' => [
 				'title' => 'Az engedélyezett SSL titkosítások konfigurálása',
-				'description' => 'Ez egy lista a titkosításokról, amelyeket használni szeretne (vagy nem szeretne) SSL használatakor. A titkosítások listájához és azok beillesztéséhez/kizárásához lásd a "CIPHER LIST FORMAT" és "CIPHER STRINGS" szakaszokat a <a href="https://www.openssl.org/docs/manmaster/man1/openssl-ciphers.html">titkosítások kézikönyv oldalán</a>.<br /><br /><b>Alapértelmezett érték:</b><pre>ECDH+AESGCM:ECDH+AES256:!aNULL:!MD5:!DSS:!DH:!AES128</pre>',
+				'description' => 'Ez egy lista a titkosításokról, amelyeket használni szeretne (vagy nem szeretne) SSL használatakor. A titkosítások listájához és azok beillesztéséhez/kizárásához lásd a "CIPHER LIST FORMAT" és "CIPHER STRINGS" szakaszokat a <a href="https://www.openssl.org/docs/manmaster/man1/openssl-ciphers.html">titkosítások kézikönyv oldalán</a>.<br /><br /><b>Alapértelmezett érték:</b><pre>ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305</pre>',
 			],
 			'apache24_ocsp_cache_path' => [
 				'title' => 'Apache 2.4: az OCSP tároló gyorsítótárának elérési útja',
