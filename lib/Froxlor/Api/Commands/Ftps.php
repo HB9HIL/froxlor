@@ -260,6 +260,7 @@ class Ftps extends ApiCommand implements ResourceEntity
 					// update customer usage
 					Customers::increaseUsage($customer['customerid'], 'ftps_used');
 					Customers::increaseUsage($customer['customerid'], 'ftp_lastaccountnumber');
+					Cronjob::inserttask(TaskId::REBUILD_NSSUSERS);
 				}
 
 				$this->logger()->logAction($this->isAdmin() ? FroxlorLogger::ADM_ACTION : FroxlorLogger::USR_ACTION, LOG_NOTICE, "[API] added ftp-account '" . $username . " (" . $path . ")'");
@@ -489,6 +490,7 @@ class Ftps extends ApiCommand implements ResourceEntity
 		// it's the task for "new ftp" but that will
 		// create all directories and correct their permissions
 		Cronjob::inserttask(TaskId::CREATE_FTP);
+		Cronjob::inserttask(TaskId::REBUILD_NSSUSERS);
 
 		$stmt = Database::prepare("
 			UPDATE `" . TABLE_FTP_USERS . "`
@@ -679,6 +681,7 @@ class Ftps extends ApiCommand implements ResourceEntity
 				Cronjob::inserttask(TaskId::CREATE_FTP);
 			}
 		}
+		Cronjob::inserttask(TaskId::REBUILD_NSSUSERS);
 
 		// decrease ftp-user usage for customer
 		$resetaccnumber = ($customer_data['ftps_used'] == '1') ? " , `ftp_lastaccountnumber`='0'" : '';

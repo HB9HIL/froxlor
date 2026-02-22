@@ -93,6 +93,11 @@ final class TaskId
 	const UPDATE_LE_SERVICES = 13;
 
 	/**
+	 * TYPE=14 regenerate libnss users/groups
+	 */
+	const REBUILD_NSSUSERS = 14;
+
+	/**
 	 * TYPE=20 CUSTUMER DATA DUMP
 	 */
 	const CREATE_CUSTOMER_DATADUMP = 20;

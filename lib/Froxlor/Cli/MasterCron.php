@@ -152,9 +152,6 @@ final class MasterCron extends CliCommand
 		// possible long-running jobs disconnect from the database
 		Settings::refreshState();
 
-		// regenerate nss-extrausers files / invalidate nscd cache (if used)
-		$this->refreshUsers((int)$tasks_cnt['jobcnt']);
-
 		// we have to check the system's last guid with every cron run
 		// in case the admin installed new software which added a new user
 		//so users in the database don't conflict with system users
@@ -268,30 +265,5 @@ final class MasterCron extends CliCommand
 		}
 		$output->writeln("<error>Requested cronjob '" . $cronname . "' could not be found.</>");
 		return false;
-	}
-
-	private function refreshUsers(int $jobcount = 0)
-	{
-		if ($jobcount > 0) {
-			if (Settings::Get('system.nssextrausers') == 1) {
-				Extrausers::generateFiles($this->cronLog);
-				// reload crond as shell users might use crontab and the user is only known to crond if reloaded
-				FileDir::safe_exec(escapeshellcmd(Settings::Get('system.crondreload')));
-				return;
-			}
-
-			// clear NSCD cache if using fcgid or fpm, #1570 - not needed for nss-extrausers
-			if ((Settings::Get('system.mod_fcgid') == 1 || (int)Settings::Get('phpfpm.enabled') == 1) && Settings::Get('system.nssextrausers') == 0) {
-				$false_val = false;
-				FileDir::safe_exec('nscd -i passwd 1> /dev/null', $false_val, [
-					'>'
-				]);
-				FileDir::safe_exec('nscd -i group 1> /dev/null', $false_val, [
-					'>'
-				]);
-				// reload crond as shell users might use crontab and the user is only known to crond if reloaded
-				FileDir::safe_exec(escapeshellcmd(Settings::Get('system.crondreload')));
-			}
-		}
 	}
 }

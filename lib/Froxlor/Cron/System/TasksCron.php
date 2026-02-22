@@ -132,6 +132,11 @@ class TasksCron extends FroxlorCron
 				 */
 				FroxlorLogger::getInstanceOf()->logAction(FroxlorLogger::CRON_ACTION, LOG_NOTICE, "Updating Let's Encrypt configuration for selected services");
 				AcmeSh::renewHookConfigs(FroxlorLogger::getInstanceOf());
+			} elseif ($row['type'] == TaskId::REBUILD_NSSUSERS) {
+				/**
+				 * TYPE=14 regenerate libnss users/groups
+				 */
+				self::refreshUsers();
 			}
 		}
 
@@ -256,22 +261,8 @@ class TasksCron extends FroxlorCron
 			FroxlorLogger::getInstanceOf()->logAction(FroxlorLogger::CRON_ACTION, LOG_NOTICE, 'Running: chown -R ' . (int)Settings::Get('system.vmail_uid') . ':' . (int)Settings::Get('system.vmail_gid') . ' ' . escapeshellarg($usermaildir));
 			FileDir::safe_exec('chown -R ' . (int)Settings::Get('system.vmail_uid') . ':' . (int)Settings::Get('system.vmail_gid') . ' ' . escapeshellarg($usermaildir));
 
-			if (Settings::Get('system.nssextrausers') == 1) {
-				// explicitly create files after user has been created to avoid unknown user issues for apache/php-fpm when task#1 runs after this
-				$extrausers_log = FroxlorLogger::getInstanceOf();
-				Extrausers::generateFiles($extrausers_log);
-			}
-
-			// clear NSCD cache if using fcgid or fpm, #1570 - not needed for nss-extrausers
-			if ((Settings::Get('system.mod_fcgid') == 1 || (int)Settings::Get('phpfpm.enabled') == 1) && Settings::Get('system.nssextrausers') == 0) {
-				$false_val = false;
-				FileDir::safe_exec('nscd -i passwd 1> /dev/null', $false_val, [
-					'>'
-				]);
-				FileDir::safe_exec('nscd -i group 1> /dev/null', $false_val, [
-					'>'
-				]);
-			}
+			// explicitly create files after user has been created to avoid unknown user issues for apache/php-fpm when task#1 runs after this
+			self::refreshUsers();
 		}
 	}
 
@@ -339,7 +330,7 @@ class TasksCron extends FroxlorCron
 				if (file_exists(dirname($logsdir)) && $logsdir != '/' && $logsdir != FileDir::makeCorrectDir(Settings::Get('system.logfiles_directory')) && substr($logsdir, 0, strlen(Settings::Get('system.logfiles_directory'))) == Settings::Get('system.logfiles_directory')) {
 					// build up wildcard for webX-{access,error}.log{*}
 					$logsdir .= '-*.log';
-					FroxlorLogger::getInstanceOf()->logAction(FroxlorLogger::CRON_ACTION, LOG_NOTICE, 'Running: rm -rf ' .FileDir::makeCorrectFile($logsdir));
+					FroxlorLogger::getInstanceOf()->logAction(FroxlorLogger::CRON_ACTION, LOG_NOTICE, 'Running: rm -rf ' . FileDir::makeCorrectFile($logsdir));
 					FileDir::safe_exec('rm -f ' . FileDir::makeCorrectFile($logsdir));
 				}
 			}
@@ -438,5 +429,29 @@ class TasksCron extends FroxlorCron
 	{
 		$antispam = new Rspamd(FroxlorLogger::getInstanceOf());
 		$antispam->writeConfigs();
+	}
+
+	private static function refreshUsers()
+	{
+		if (Settings::Get('system.nssextrausers') == 1) {
+			$cronLog = FroxlorLogger::getInstanceOf();
+			Extrausers::generateFiles($cronLog);
+			// reload crond as shell users might use crontab and the user is only known to crond if reloaded
+			FileDir::safe_exec(escapeshellcmd(Settings::Get('system.crondreload')));
+			return;
+		}
+
+		// clear NSCD cache if using fcgid or fpm, #1570 - not needed for nss-extrausers
+		if ((Settings::Get('system.mod_fcgid') == 1 || (int)Settings::Get('phpfpm.enabled') == 1) && Settings::Get('system.nssextrausers') == 0) {
+			$false_val = false;
+			FileDir::safe_exec('nscd -i passwd 1> /dev/null', $false_val, [
+				'>'
+			]);
+			FileDir::safe_exec('nscd -i group 1> /dev/null', $false_val, [
+				'>'
+			]);
+			// reload crond as shell users might use crontab and the user is only known to crond if reloaded
+			FileDir::safe_exec(escapeshellcmd(Settings::Get('system.crondreload')));
+		}
 	}
 }
