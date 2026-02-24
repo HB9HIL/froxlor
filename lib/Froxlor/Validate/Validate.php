@@ -386,4 +386,175 @@ class Validate
 		// If everything is okay, return true
 		return true;
 	}
+
+	public static function validateDnsLoc(string $input)
+	{
+		$pattern = '/^
+        (\d{1,2})\s+                # latitude degrees
+        (\d{1,2})\s+                # latitude minutes
+        (\d{1,2}(?:\.\d+)?)\s+      # latitude seconds
+        ([NS])\s+                   # latitude direction
+        (\d{1,3})\s+                # longitude degrees
+        (\d{1,2})\s+                # longitude minutes
+        (\d{1,2}(?:\.\d+)?)\s+      # longitude seconds
+        ([EW])\s+                   # longitude direction
+        (-?\d+(?:\.\d+)?)m          # altitude
+        (?:\s+(\d+(?:\.\d+)?)m      # size (optional)
+        (?:\s+(\d+(?:\.\d+)?)m      # horiz precision (optional)
+        (?:\s+(\d+(?:\.\d+)?)m)?    # vert precision (optional)
+        )?)?$/x';
+
+		if (!preg_match($pattern, $input, $matches)) {
+			return false;
+		}
+
+		[
+			,
+			$latDeg, $latMin, $latSec, $latDir,
+			$lonDeg, $lonMin, $lonSec, $lonDir,
+			$alt,
+			$size, $hPrec, $vPrec
+		] = $matches + array_fill(0, 13, null);
+
+		// Range checks
+		if ($latDeg > 90) return false;
+		if ($latMin > 59) return false;
+		if ($latSec >= 60) return false;
+
+		if ($lonDeg > 180) return false;
+		if ($lonMin > 59) return false;
+		if ($lonSec >= 60) return false;
+
+		return $input;
+	}
+
+	public static function validateDnsRp(string $input)
+	{
+		$parts = preg_split('/\s+/', trim($input));
+
+		if (count($parts) !== 2) {
+			return false;
+		}
+
+		[$mboxDname, $txtDname] = $parts;
+
+		// remove trailing dot if any
+		$mboxDname = rtrim($mboxDname, '.');
+		$txtDname  = rtrim($txtDname, '.');
+
+		if (!self::validateDomain($mboxDname)) {
+			return false;
+		}
+
+		if (!self::validateDomain($txtDname)) {
+			return false;
+		}
+
+		return $input;
+	}
+
+	public static function validateDnsSshfp(string $input)
+	{
+		$parts = preg_split('/\s+/', trim($input));
+
+		if (count($parts) !== 3) {
+			return false;
+		}
+
+		[$algorithm, $type, $fingerprint] = $parts;
+
+		// ---- algorithm ----
+		$validAlgorithms = [1, 2, 3, 4, 6];
+
+		if (!ctype_digit($algorithm) || !in_array((int)$algorithm, $validAlgorithms, true)) {
+			return false;
+		}
+
+		// ---- fingerprint type ----
+		$validTypes = [1, 2];
+
+		if (!ctype_digit($type) || !in_array((int)$type, $validTypes, true)) {
+			return false;
+		}
+
+		// ---- check fingerprint ----
+		if (!ctype_xdigit($fingerprint)) {
+			return false;
+		}
+
+		$type = (int)$type;
+
+		switch ($type) {
+			case 1: // SHA-1
+				$expectedLength = 40;
+				break;
+
+			case 2: // SHA-256
+				$expectedLength = 64;
+				break;
+
+			default:
+				$expectedLength = 0;
+				break;
+		}
+
+		if (strlen($fingerprint) !== $expectedLength) {
+			return false;
+		}
+
+		return $input;
+	}
+
+	public static function validateDnsTlsa(string $input)
+	{
+		$parts = preg_split('/\s+/', trim($input));
+
+		if (count($parts) !== 4) {
+			return false;
+		}
+
+		[$usage, $selector, $matchingType, $data] = $parts;
+
+		// ---- usage ----
+		$validUsage = [0, 1, 2, 3];
+
+		if (!ctype_digit($usage) || !in_array((int)$usage, $validUsage, true)) {
+			return false;
+		}
+
+		// ---- selector ----
+		$validSelector = [0, 1];
+
+		if (!ctype_digit($selector) || !in_array((int)$selector, $validSelector, true)) {
+			return false;
+		}
+
+		// ---- matching type ----
+		$validMatching = [0, 1, 2];
+
+		if (!ctype_digit($matchingType) || !in_array((int)$matchingType, $validMatching, true)) {
+			return false;
+		}
+
+		// ---- certificate association data ----
+		if (!ctype_xdigit($data)) {
+			return false;
+		}
+
+		$matchingType = (int)$matchingType;
+
+		if ($matchingType === 1 && strlen($data) !== 64) {
+			return false; // SHA-256
+		}
+
+		if ($matchingType === 2 && strlen($data) !== 128) {
+			return false; // SHA-512
+		}
+
+		if ($matchingType === 0 && strlen($data) < 2) {
+			return false; // at least 1 byte hex
+		}
+
+		return $input;
+	}
 }
