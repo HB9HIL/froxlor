@@ -112,7 +112,7 @@ class Emails extends ApiCommand implements ResourceEntity
 			if (substr($domain, 0, 4) != 'xn--') {
 				$domain = $idna_convert->encode(Validate::validate($domain, 'domain', '', '', [], true));
 			}
-			$email_part = $idna_convert->encode($email_part);
+			$email_part = $idna_convert->encode(strtolower($email_part));
 
 			// check domain and whether it's an email-enabled domain
 			// use internal call because the customer might have 'domains' in customer_hide_options
