@@ -729,6 +729,7 @@ class Nginx extends HttpConfigBase
 			$error_log = FileDir::makeCorrectFile(Settings::Get('system.logfiles_directory') . $domain['loginname'] . $speciallogfile . '-error.log');
 			// Create the logfile if it does not exist (fixes #46)
 			touch($error_log);
+			chmod($error_log, 0640);
 			chown($error_log, Settings::Get('system.httpuser'));
 			chgrp($error_log, Settings::Get('system.httpgroup'));
 		} else {
@@ -739,6 +740,7 @@ class Nginx extends HttpConfigBase
 			$access_log = FileDir::makeCorrectFile(Settings::Get('system.logfiles_directory') . $domain['loginname'] . $speciallogfile . '-access.log');
 			// Create the logfile if it does not exist (fixes #46)
 			touch($access_log);
+			chmod($access_log, 0640);
 			chown($access_log, Settings::Get('system.httpuser'));
 			chgrp($access_log, Settings::Get('system.httpgroup'));
 		} else {
